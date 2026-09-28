@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BESAFE Reach & Impact Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #262626;
+    --border: #B3B3B3;
+    --accent: #002D72;
+    --input-bg: #F2F5F8;
+    --table-head: #F2F5F8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #ffffff;
+    color: var(--text);
+    font-family: 'Work Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    padding: 28px 18px 60px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 32px; color: var(--accent); margin: 0 0 4px; }
+  .sub { color: var(--text); font-size: 14px; margin-bottom: 10px; }
+  .legend-note { font-size: 13px; color: var(--accent); background: var(--input-bg); display: inline-block; padding: 6px 12px; border-radius: 6px; margin-bottom: 30px; }
+
+  section { padding: 36px 0; }
+  section h2 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--accent);
+    margin: 0 0 20px;
+  }
+  section h3 {
+    font-family: 'Work Sans', Tahoma, sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--text);
+    margin: 0 0 12px;
+  }
+  h4.subsub {
+    font-family: 'Work Sans', Tahoma, sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    margin: 0 0 10px;
+  }
+  .subsection { margin-bottom: 52px; padding-bottom: 4px; }
+  .subsection:last-child { margin-bottom: 0; }
+  .subsection-note { font-size: 14px; color: var(--text); background: var(--input-bg); padding: 12px 14px; border-radius: 6px; margin-bottom: 32px; }
+
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .field { flex: 1; min-width: 130px; }
+  label { display: block; font-size: 12px; color: var(--text); margin-bottom: 4px; }
+  input, select {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--input-bg);
+    font-size: 15px;
+    color: var(--text);
+    font-family: 'Work Sans', Tahoma, sans-serif;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 9px; border-bottom: 1px solid var(--border); }
+  thead th { background: var(--table-head); font-weight: 700; }
+  .a-input { width: 72px; padding: 5px 6px; font-size: 13px; }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    font-family: 'Work Sans', Tahoma, sans-serif;
+    white-space: nowrap;
+  }
+  button:hover { opacity: 0.9; }
+  button.secondary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-size: 15px;
+    padding: 10px 18px;
+  }
+  button.btn-remove {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+  .field-btn { flex: 0 0 auto; min-width: 0; }
+
+  .estimate-box {
+    margin-top: 10px;
+    padding: 8px 0;
+    font-size: 13px;
+    display: none;
+  }
+  .estimate-box b { color: var(--accent); }
+
+  .empty { color: var(--text); font-size: 13px; }
+
+  /* Results: deliberately more prominent than surrounding inputs, and clearly separated from it */
+  .results-block {
+    margin-top: 36px;
+    padding: 22px 0 4px;
+    border-top: 2px solid var(--accent);
+  }
+  .results-block .results-label {
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .results-table { width: 100%; border-collapse: collapse; }
+  .results-table th { text-align: right; font-size: 12px; color: var(--text); border-bottom: 1px solid var(--border); padding: 5px 8px; }
+  .results-table th:first-child { text-align: left; }
+  .results-table td { text-align: right; padding: 8px; border-bottom: none; }
+  .results-table td:first-child { text-align: left; font-size: 14px; }
+  .results-table td.mode { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 24px; color: var(--accent); }
+  .results-table td.lowhigh { font-size: 13px; color: var(--text); }
+
+  .summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .summary-table td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 15px; }
+  .summary-table td.num { text-align: right; }
+  .summary-table td.num .mode-val { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 22px; color: var(--accent); }
+  .summary-table td.num .range-val { font-size: 13px; color: var(--text); font-family: 'Work Sans', Tahoma, sans-serif; margin-left: 6px; }
+  .summary-table tr:last-child td { font-weight: 700; border-bottom: none; }
+
+  .chart-legend { display:flex; gap:16px; margin-bottom:8px; font-size:13px; color:var(--text); }
+  .legend-swatch { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:middle; }
+  .chart-bar-label { font-size:11px; fill:var(--text); }
+  .chart-axis-label { font-size:11px; fill:var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reach &amp; Impact Calculator</h1>
+  <div class="sub">Stream A (provider mediated) plus Stream B (direct reach and self protection).</div>
+
+  <section>
+    <h2>Stream A: Provider Mediated</h2>
+
+    <div class="subsection">
+      <h3>1. Activities</h3>
+      <table>
+        <thead><tr><th>Activity</th><th>Intensity</th><th>Role</th><th>N</th><th>Low</th><th>Mode</th><th>High</th><th></th></tr></thead>
+        <tbody id="activityBody"></tbody>
+      </table>
+      <div class="empty" id="activityEmpty">No entries yet.</div>
+
+      <div class="row" style="margin-top:18px; align-items:flex-end;">
+        <div class="field"><label for="actName">Activity name</label><input type="text" id="actName" placeholder="e.g. AANP plenary"></div>
+        <div class="field"><label for="actIntensity">Contact intensity</label><select id="actIntensity"></select></div>
+        <div class="field"><label for="actRole">Role reached</label><select id="actRole"></select></div>
+        <div class="field"><label for="actN">Contacts reached (N)</label><input type="number" id="actN" min="0" placeholder="e.g. 450"></div>
+        <div class="field field-btn"><button id="addActivityBtn">Add entry</button></div>
+      </div>
+      <div class="estimate-box" id="activityEstimateBox"></div>
+    </div>
+
+    <div class="subsection">
+      <h3>2. Adoption factor (a) reference, by contact intensity</h3>
+      <table>
+        <thead><tr><th>Contact intensity</th><th>a low</th><th>a mode</th><th>a high</th></tr></thead>
+        <tbody id="intensityBody"></tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <h3>3. Role reference: f (active fraction) and P (patients per year)</h3>
+      <table>
+        <thead><tr><th>Role</th><th>f active fraction</th><th>P patients per year</th></tr></thead>
+        <tbody id="roleBody"></tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <h3>4. Stream A overlap haircut (h)</h3>
+      <div class="row">
+        <div class="field"><label for="hALow">h low</label><input type="number" step="0.01" id="hALow" value="0.15"></div>
+        <div class="field"><label for="hAHigh">h high</label><input type="number" step="0.01" id="hAHigh" value="0.30"></div>
+      </div>
+      <button id="calcABtn">Calculate</button>
+    </div>
+
+    <div class="results-block">
+      <div class="results-label">Results: Patients protected, Stream A</div>
+      <table class="results-table">
+        <thead><tr><th></th><th>Low</th><th>Mode</th><th>High</th></tr></thead>
+        <tbody><tr id="streamAResultRow"><td>Patients protected</td><td class="lowhigh"></td><td class="mode"></td><td class="lowhigh"></td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Stream B: Direct Reach / Self Protection</h2>
+
+    <div class="subsection-note">
+      Directly measured means a real number you already have, from an analytics report or a platform's own count.
+      Modelled means an estimate: an audience size multiplied by an assumed exposure rate, used when a direct count is not available.
+    </div>
+
+    <div class="subsection">
+      <h3>1. Channels</h3>
+      <h4 class="subsub">1-a. Directly measured channels (channels you could get the real number for)</h4>
+      <table>
+        <thead><tr><th>Channel</th><th>Reach</th><th></th></tr></thead>
+        <tbody id="directBody"></tbody>
+      </table>
+      <div class="empty" id="directEmpty">No channels yet.</div>
+
+      <div class="row" style="margin-top:18px; align-items:flex-end;">
+        <div class="field"><label for="directName">Channel</label><input type="text" id="directName" placeholder="e.g. Website"></div>
+        <div class="field"><label for="directD">Reach (d)</label><input type="number" id="directD" min="0" placeholder="e.g. 46200"></div>
+        <div class="field field-btn"><button class="secondary" id="addDirectBtn">Add channel</button></div>
+      </div>
+
+      <h4 class="subsub" style="margin-top:30px;">1-b. Modelled channels (channels you cannot get the real number for; base audience times exposure rate)</h4>
+      <table>
+        <thead><tr><th>Channel</th><th>Base</th><th>e low to high</th><th>Reach low</th><th>Reach high</th><th></th></tr></thead>
+        <tbody id="modelledBody"></tbody>
+      </table>
+      <div class="empty" id="modelledEmpty">No channels yet.</div>
+
+      <div class="row" style="margin-top:18px; align-items:flex-end;">
+        <div class="field"><label for="modName">Channel</label><input type="text" id="modName" placeholder="e.g. LinkedIn"></div>
+        <div class="field"><label for="modF">Base (F)</label><input type="number" id="modF" min="0" placeholder="e.g. 320000"></div>
+        <div class="field"><label for="modELow">e low</label><input type="number" id="modELow" step="0.01" placeholder="e.g. 0.02"></div>
+        <div class="field"><label for="modEHigh">e high</label><input type="number" id="modEHigh" step="0.01" placeholder="e.g. 0.08"></div>
+        <div class="field field-btn"><button class="secondary" id="addModelledBtn">Add channel</button></div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>2. Self protection rate (s)</h3>
+      <div class="empty" style="margin-bottom:12px;">Media reach and Website reach here are their own numbers, separate from the channels table above; update both places if they change.</div>
+      <div class="row">
+        <div class="field"><label for="spMedia">Media reach</label><input type="number" id="spMedia" value="46200"></div>
+        <div class="field"><label for="spWebsite">Website reach</label><input type="number" id="spWebsite" value="35800"></div>
+        <div class="field"><label for="spShare">Patient facing share of website</label><input type="number" id="spShare" step="0.01" value="0.70"></div>
+        <div class="field"><label for="sLow">s low</label><input type="number" id="sLow" step="0.001" value="0.005"></div>
+        <div class="field"><label for="sMode">s mode</label><input type="number" id="sMode" step="0.001" value="0.02"></div>
+        <div class="field"><label for="sHigh">s high</label><input type="number" id="sHigh" step="0.001" value="0.04"></div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>3. Stream B overlap haircut (h)</h3>
+      <div class="row">
+        <div class="field"><label for="hBLow">h low</label><input type="number" step="0.01" id="hBLow" value="0.25"></div>
+        <div class="field"><label for="hBHigh">h high</label><input type="number" step="0.01" id="hBHigh" value="0.40"></div>
+      </div>
+      <button id="calcBBtn">Calculate</button>
+    </div>
+
+    <div class="results-block">
+      <div class="results-label">Results: Stream B</div>
+      <table class="results-table">
+        <thead><tr><th></th><th>Low</th><th>Mode</th><th>High</th></tr></thead>
+        <tbody>
+          <tr id="reachedResultRow"><td>Individuals reached</td><td class="lowhigh"></td><td class="mode"></td><td class="lowhigh"></td></tr>
+          <tr id="selfProtectedResultRow"><td>Patients self protected</td><td class="lowhigh"></td><td class="mode"></td><td class="lowhigh"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Overall Summary</h2>
+    <button class="secondary" id="exportBtn" style="margin-bottom:16px;">Export to Excel</button>
+    <div id="resultGrid"></div>
+    <div id="chartWrap" style="margin-top:20px;"></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+
+<script>
+const INTENSITY = [
+  { key:"interactive", label:"Interactive / completed education", low:0.030, mode:0.066, high:0.130 },
+  { key:"live_didactic", label:"Live didactic / presentation", low:0.015, mode:0.040, high:0.100 },
+  { key:"incidental", label:"Incidental exposure, role-confirmed", low:0.005, mode:0.027, high:0.060 },
+];
+const ROLES = [
+  { role:"Physician", f:0.84, P:645 },
+  { role:"Nurse Practitioner", f:0.96, P:679 },
+  { role:"Pharmacist", f:0.68, P:1125 },
+  { role:"Registered Nurse", f:0.725, P:84 },
+];
+
+let activities = [
+  { id: uid(), name:"AANP plenary", intensity:"live_didactic", role:"Nurse Practitioner", N:450 }
+];
+let directChannels = [
+  { id: uid(), name:"Directly measured channels", d:106382 },
+  { id: uid(), name:"Media", d:46200 },
+];
+let modelledChannels = [
+  { id: uid(), name:"Editorial list", F:385000, eLow:0.03, eHigh:0.10 },
+  { id: uid(), name:"Health Affairs", F:320000, eLow:0.02, eHigh:0.08 },
+];
+
+function uid() { return "id" + Math.random().toString(36).slice(2,9); }
+function fmt(n) { return Math.round(n).toLocaleString(); }
+
+
+/* ---- Stream A: adoption factor table ---- */
+const intensityBody = document.getElementById("intensityBody");
+INTENSITY.forEach(f => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td>${f.label}</td>
+    <td><input class="a-input" type="number" step="0.001" value="${f.low}" data-key="${f.key}" data-field="low"></td>
+    <td><input class="a-input" type="number" step="0.001" value="${f.mode}" data-key="${f.key}" data-field="mode"></td>
+    <td><input class="a-input" type="number" step="0.001" value="${f.high}" data-key="${f.key}" data-field="high"></td>`;
+  intensityBody.appendChild(tr);
+});
+intensityBody.addEventListener("input", e => {
+  const t = e.target; if (t.tagName!=="INPUT") return;
+  const f = INTENSITY.find(x=>x.key===t.dataset.key);
+  if (f) { f[t.dataset.field] = parseFloat(t.value)||0; }
+});
+
+/* ---- Stream A: role reference table ---- */
+const roleBody = document.getElementById("roleBody");
+ROLES.forEach(r => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td>${r.role}</td>
+    <td><input class="a-input" type="number" step="0.01" value="${r.f}" data-role="${r.role}" data-field="f"></td>
+    <td><input class="a-input" type="number" value="${r.P}" data-role="${r.role}" data-field="P"></td>`;
+  roleBody.appendChild(tr);
+});
+roleBody.addEventListener("input", e => {
+  const t = e.target; if (t.tagName!=="INPUT") return;
+  const r = ROLES.find(x=>x.role===t.dataset.role);
+  if (r) { r[t.dataset.field] = parseFloat(t.value)||0; }
+});
+
+document.getElementById("calcABtn").addEventListener("click", renderAll);
+document.getElementById("calcBBtn").addEventListener("click", renderAll);
+
+/* ---- Stream A: activity form ---- */
+const actIntensitySelect = document.getElementById("actIntensity");
+INTENSITY.forEach(f => {
+  const opt = document.createElement("option"); opt.value = f.key; opt.textContent = f.label;
+  actIntensitySelect.appendChild(opt);
+});
+const actRoleSelect = document.getElementById("actRole");
+ROLES.forEach(r => {
+  const opt = document.createElement("option"); opt.value = r.role; opt.textContent = r.role;
+  actRoleSelect.appendChild(opt);
+});
+
+function computeActivityEstimate(intensityKey, role, N) {
+  const f = INTENSITY.find(x=>x.key===intensityKey);
+  const r = ROLES.find(x=>x.role===role);
+  if (!f || !r) return null;
+  const base = N * r.f * r.P;
+  return { low: base*f.low, mode: base*f.mode, high: base*f.high };
+}
+
+document.getElementById("addActivityBtn").addEventListener("click", () => {
+  const name = document.getElementById("actName").value.trim() || "Untitled activity";
+  const intensity = actIntensitySelect.value;
+  const role = actRoleSelect.value;
+  const N = parseFloat(document.getElementById("actN").value);
+  if (isNaN(N) || N < 0) return;
+
+  activities.push({ id: uid(), name, intensity, role, N });
+
+  const est = computeActivityEstimate(intensity, role, N);
+  const box = document.getElementById("activityEstimateBox");
+  if (est) {
+    box.style.display = "block";
+    box.innerHTML = `Estimated patients protected for this activity, before the overlap haircut: low ${fmt(est.low)}, mode <b>${fmt(est.mode)}</b>, high ${fmt(est.high)}.`;
+  }
+  document.getElementById("actName").value = "";
+  document.getElementById("actN").value = "";
+  renderAll();
+});
+
+function renderActivities() {
+  const body = document.getElementById("activityBody");
+  const empty = document.getElementById("activityEmpty");
+  body.innerHTML = "";
+  if (!activities.length) { empty.style.display="block"; return; }
+  empty.style.display = "none";
+  activities.forEach(a => {
+    const est = computeActivityEstimate(a.intensity, a.role, a.N) || {low:0,mode:0,high:0};
+    const intLabel = (INTENSITY.find(x=>x.key===a.intensity)||{}).label || a.intensity;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${a.name}</td><td>${intLabel}</td><td>${a.role}</td><td>${fmt(a.N)}</td>
+      <td>${fmt(est.low)}</td><td>${fmt(est.mode)}</td><td>${fmt(est.high)}</td>
+      <td><button class="btn-remove" data-id="${a.id}">Remove</button></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll("button[data-id]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activities = activities.filter(x=>x.id!==btn.dataset.id);
+      renderAll();
+    });
+  });
+}
+
+/* ---- Stream B: direct channels ---- */
+document.getElementById("addDirectBtn").addEventListener("click", () => {
+  const name = document.getElementById("directName").value.trim() || "Untitled channel";
+  const d = parseFloat(document.getElementById("directD").value);
+  if (isNaN(d) || d < 0) return;
+  directChannels.push({ id: uid(), name, d });
+  document.getElementById("directName").value = "";
+  document.getElementById("directD").value = "";
+  renderAll();
+});
+function renderDirect() {
+  const body = document.getElementById("directBody");
+  const empty = document.getElementById("directEmpty");
+  body.innerHTML = "";
+  if (!directChannels.length) { empty.style.display="block"; return; }
+  empty.style.display = "none";
+  directChannels.forEach(c => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${c.name}</td><td>${fmt(c.d)}</td><td><button class="btn-remove" data-id="${c.id}">Remove</button></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll("button[data-id]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      directChannels = directChannels.filter(x=>x.id!==btn.dataset.id);
+      renderAll();
+    });
+  });
+}
+
+/* ---- Stream B: modelled channels ---- */
+document.getElementById("addModelledBtn").addEventListener("click", () => {
+  const name = document.getElementById("modName").value.trim() || "Untitled channel";
+  const F = parseFloat(document.getElementById("modF").value);
+  const eLow = parseFloat(document.getElementById("modELow").value);
+  const eHigh = parseFloat(document.getElementById("modEHigh").value);
+  if (isNaN(F) || F < 0 || isNaN(eLow) || isNaN(eHigh)) return;
+  modelledChannels.push({ id: uid(), name, F, eLow, eHigh });
+  document.getElementById("modName").value = "";
+  document.getElementById("modF").value = "";
+  document.getElementById("modELow").value = "";
+  document.getElementById("modEHigh").value = "";
+  renderAll();
+});
+function renderModelled() {
+  const body = document.getElementById("modelledBody");
+  const empty = document.getElementById("modelledEmpty");
+  body.innerHTML = "";
+  if (!modelledChannels.length) { empty.style.display="block"; return; }
+  empty.style.display = "none";
+  modelledChannels.forEach(c => {
+    const reachLow = c.F * c.eLow, reachHigh = c.F * c.eHigh;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${c.name}</td><td>${fmt(c.F)}</td><td>${(c.eLow*100).toFixed(1)}% to ${(c.eHigh*100).toFixed(1)}%</td>
+      <td>${fmt(reachLow)}</td><td>${fmt(reachHigh)}</td>
+      <td><button class="btn-remove" data-id="${c.id}">Remove</button></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll("button[data-id]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      modelledChannels = modelledChannels.filter(x=>x.id!==btn.dataset.id);
+      renderAll();
+    });
+  });
+}
+
+/* ---- Calculations ---- */
+function computeStreamA() {
+  const hA = { low: parseFloat(document.getElementById("hALow").value)||0, high: parseFloat(document.getElementById("hAHigh").value)||0 };
+  let rawLow=0, rawMode=0, rawHigh=0;
+  activities.forEach(a => {
+    const est = computeActivityEstimate(a.intensity, a.role, a.N);
+    if (est) { rawLow+=est.low; rawMode+=est.mode; rawHigh+=est.high; }
+  });
+  return {
+    low: rawLow * (1 - hA.high),
+    mode: rawMode * (1 - (hA.low+hA.high)/2),
+    high: rawHigh * (1 - hA.low),
+  };
+}
+
+function computeReached() {
+  const hB = { low: parseFloat(document.getElementById("hBLow").value)||0, high: parseFloat(document.getElementById("hBHigh").value)||0 };
+  const directSum = directChannels.reduce((s,c)=>s+(c.d||0),0);
+  const modLow = modelledChannels.reduce((s,c)=>s+(c.F||0)*(c.eLow||0),0);
+  const modHigh = modelledChannels.reduce((s,c)=>s+(c.F||0)*(c.eHigh||0),0);
+  const grossLow = directSum + modLow, grossHigh = directSum + modHigh;
+  const low = grossLow * (1 - hB.high);
+  const high = grossHigh * (1 - hB.low);
+  return { low, high, mode: (low+high)/2 };
+}
+
+function computeSelfProtected() {
+  const spMedia = parseFloat(document.getElementById("spMedia").value)||0;
+  const spWebsite = parseFloat(document.getElementById("spWebsite").value)||0;
+  const spShare = parseFloat(document.getElementById("spShare").value)||0;
+  const sLow = parseFloat(document.getElementById("sLow").value)||0;
+  const sMode = parseFloat(document.getElementById("sMode").value)||0;
+  const sHigh = parseFloat(document.getElementById("sHigh").value)||0;
+  const C = spMedia + spWebsite*spShare;
+  return { low: C*sLow, mode: C*sMode, high: C*sHigh };
+}
+
+function computeResults() {
+  const streamA = computeStreamA();
+  const reached = computeReached();
+  const selfProtected = computeSelfProtected();
+  const total = {
+    low: streamA.low + selfProtected.low,
+    mode: streamA.mode + selfProtected.mode,
+    high: streamA.high + selfProtected.high,
+  };
+  return { reached, streamA, selfProtected, total };
+}
+
+function fillResultRow(rowId, r) {
+  const row = document.getElementById(rowId);
+  const cells = row.querySelectorAll("td");
+  cells[1].textContent = fmt(r.low);
+  cells[2].textContent = fmt(r.mode);
+  cells[3].textContent = fmt(r.high);
+}
+
+function renderResults(res) {
+  fillResultRow("streamAResultRow", res.streamA);
+  fillResultRow("reachedResultRow", res.reached);
+  fillResultRow("selfProtectedResultRow", res.selfProtected);
+
+  const grid = document.getElementById("resultGrid");
+  grid.innerHTML = "";
+
+  const rows = [
+    { lbl:"Individuals reached", r: res.reached },
+    { lbl:"Patients protected, Stream A", r: res.streamA },
+    { lbl:"Patients self protected, Stream B", r: res.selfProtected },
+    { lbl:"Total patients protected", r: res.total },
+  ];
+  const table = document.createElement("table");
+  table.className = "summary-table";
+  const tbody = document.createElement("tbody");
+  rows.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${row.lbl}</td><td class="num"><span class="mode-val">${fmt(row.r.mode)}</span><span class="range-val">(${fmt(row.r.low)} to ${fmt(row.r.high)})</span></td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  grid.appendChild(table);
+
+  drawChart([
+    { label:"Stream A", low:res.streamA.low, mode:res.streamA.mode, high:res.streamA.high },
+    { label:"Self protected", low:res.selfProtected.low, mode:res.selfProtected.mode, high:res.selfProtected.high },
+    { label:"Total protected", low:res.total.low, mode:res.total.mode, high:res.total.high },
+  ]);
+}
+
+function drawChart(items) {
+  const wrap = document.getElementById("chartWrap");
+  wrap.innerHTML = "";
+  const legend = document.createElement("div");
+  legend.className = "chart-legend";
+  legend.innerHTML = `
+    <span><span class="legend-swatch" style="background:#9fb6d6"></span>Low</span>
+    <span><span class="legend-swatch" style="background:#002D72"></span>Mode</span>
+    <span><span class="legend-swatch" style="background:#4a76ad"></span>High</span>`;
+  wrap.appendChild(legend);
+
+  const width = wrap.clientWidth > 0 ? wrap.clientWidth : 800;
+  const height = 240, marginLeft=8, marginRight=8, marginBottom=42, marginTop=14;
+  const plotW = width - marginLeft - marginRight, plotH = height - marginTop - marginBottom;
+  const maxVal = Math.max(1, ...items.map(it=>it.high));
+  const groupW = plotW / items.length;
+  const barW = Math.min(30, groupW/5), gap = 7;
+  const colors = { low:"#9fb6d6", mode:"#002D72", high:"#4a76ad" };
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS,"svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("width","100%"); svg.setAttribute("height", height);
+
+  const baseline = document.createElementNS(svgNS,"line");
+  baseline.setAttribute("x1",marginLeft); baseline.setAttribute("x2", width-marginRight);
+  baseline.setAttribute("y1", height-marginBottom); baseline.setAttribute("y2", height-marginBottom);
+  baseline.setAttribute("stroke","#B3B3B3");
+  svg.appendChild(baseline);
+
+  items.forEach((it,i) => {
+    const groupX = marginLeft + i*groupW + groupW/2;
+    const vals = [["low",it.low],["mode",it.mode],["high",it.high]];
+    const totalW = vals.length*barW + (vals.length-1)*gap;
+    let x = groupX - totalW/2;
+    vals.forEach(([key,val]) => {
+      const barH = (val/maxVal)*plotH;
+      const rect = document.createElementNS(svgNS,"rect");
+      rect.setAttribute("x",x); rect.setAttribute("y", height-marginBottom-barH);
+      rect.setAttribute("width",barW); rect.setAttribute("height", Math.max(barH,0));
+      rect.setAttribute("fill", colors[key]); rect.setAttribute("rx","2");
+      svg.appendChild(rect);
+      const lab = document.createElementNS(svgNS,"text");
+      lab.setAttribute("x", x+barW/2); lab.setAttribute("y", height-marginBottom-barH-5);
+      lab.setAttribute("text-anchor","middle"); lab.setAttribute("class","chart-bar-label");
+      lab.textContent = fmt(val);
+      svg.appendChild(lab);
+      x += barW+gap;
+    });
+    const label = document.createElementNS(svgNS,"text");
+    label.setAttribute("x",groupX); label.setAttribute("y", height-marginBottom+16);
+    label.setAttribute("text-anchor","middle"); label.setAttribute("class","chart-axis-label");
+    label.textContent = it.label;
+    svg.appendChild(label);
+  });
+  wrap.appendChild(svg);
+}
+
+function renderAll() {
+  renderActivities();
+  renderDirect();
+  renderModelled();
+  renderResults(computeResults());
+}
+
+/* ---- Export to Excel (data sheets + chart image) ---- */
+function svgToPngDataUrl(svgEl) {
+  return new Promise((resolve, reject) => {
+    const width = svgEl.clientWidth || 800;
+    const height = svgEl.clientHeight || 240;
+    const clone = svgEl.cloneNode(true);
+    clone.setAttribute("width", width);
+    clone.setAttribute("height", height);
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    const svgString = new XMLSerializer().serializeToString(clone);
+    const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width * 2;
+      canvas.height = height * 2;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(2, 2);
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      resolve({ dataUrl: canvas.toDataURL("image/png"), width, height });
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+document.getElementById("exportBtn").addEventListener("click", async () => {
+  const res = computeResults();
+  const wb = new ExcelJS.Workbook();
+
+  const addSheet = (name, columns, rows) => {
+    const ws = wb.addWorksheet(name);
+    ws.columns = columns;
+    rows.forEach(r => ws.addRow(r));
+    ws.getRow(1).font = { bold: true };
+  };
+
+  addSheet("Stream A Activities",
+    [{header:"Activity",key:"activity",width:26},{header:"Contact intensity",key:"intensity",width:30},
+     {header:"Role",key:"role",width:20},{header:"N",key:"n",width:10},
+     {header:"Low",key:"low",width:12},{header:"Mode",key:"mode",width:12},{header:"High",key:"high",width:12}],
+    activities.map(a => {
+      const est = computeActivityEstimate(a.intensity, a.role, a.N) || {low:0,mode:0,high:0};
+      const intLabel = (INTENSITY.find(x=>x.key===a.intensity)||{}).label || a.intensity;
+      return { activity:a.name, intensity:intLabel, role:a.role, n:a.N, low:Math.round(est.low), mode:Math.round(est.mode), high:Math.round(est.high) };
+    })
+  );
+
+  addSheet("Stream B Direct Channels",
+    [{header:"Channel",key:"channel",width:30},{header:"Reach (d)",key:"d",width:14}],
+    directChannels.map(c => ({ channel:c.name, d:c.d }))
+  );
+
+  addSheet("Stream B Modelled Channels",
+    [{header:"Channel",key:"channel",width:24},{header:"Base (F)",key:"f",width:12},
+     {header:"e low",key:"elow",width:10},{header:"e high",key:"ehigh",width:10},
+     {header:"Reach low",key:"rlow",width:14},{header:"Reach high",key:"rhigh",width:14}],
+    modelledChannels.map(c => ({ channel:c.name, f:c.F, elow:c.eLow, ehigh:c.eHigh, rlow:Math.round(c.F*c.eLow), rhigh:Math.round(c.F*c.eHigh) }))
+  );
+
+  const summaryWs = wb.addWorksheet("Summary");
+  summaryWs.columns = [{header:"Metric",key:"metric",width:34},{header:"Low",key:"low",width:14},{header:"Mode",key:"mode",width:14},{header:"High",key:"high",width:14}];
+  summaryWs.getRow(1).font = { bold: true };
+  [
+    { metric:"Individuals reached", low:Math.round(res.reached.low), mode:Math.round(res.reached.mode), high:Math.round(res.reached.high) },
+    { metric:"Patients protected, Stream A", low:Math.round(res.streamA.low), mode:Math.round(res.streamA.mode), high:Math.round(res.streamA.high) },
+    { metric:"Patients self protected, Stream B", low:Math.round(res.selfProtected.low), mode:Math.round(res.selfProtected.mode), high:Math.round(res.selfProtected.high) },
+    { metric:"Total patients protected", low:Math.round(res.total.low), mode:Math.round(res.total.mode), high:Math.round(res.total.high) },
+  ].forEach(r => summaryWs.addRow(r));
+
+  const svgEl = document.querySelector("#chartWrap svg");
+  if (svgEl) {
+    try {
+      const { dataUrl, width, height } = await svgToPngDataUrl(svgEl);
+      const imageId = wb.addImage({ base64: dataUrl, extension: "png" });
+      summaryWs.addImage(imageId, { tl: { col: 0, row: 6 }, ext: { width, height } });
+    } catch (e) { console.error("Chart export failed:", e); }
+  }
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const dateStr = new Date().toISOString().slice(0,10);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `besafe_reach_impact_${dateStr}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+renderAll();
+</script>
+</body>
+</html>
